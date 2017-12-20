@@ -40,5 +40,12 @@ venv.bak/
 # IDEA
 .idea/
 
+# ipython
+.ipynb_checkpoints/
+*.ipynb
+
 # django
 django/
+
+
+

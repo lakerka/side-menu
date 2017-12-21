@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.fields import Field
 
 
+# TODO investigate postgres GIST index
 class LtreeField(models.TextField):
     description = 'ltree'
 

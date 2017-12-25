@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from products.fields import LtreeField
 
@@ -9,7 +10,11 @@ class Category(models.Model):
     name = models.CharField(max_length=30)
     active = models.BooleanField(default=True)
 
-# TODO prevent saving multiple roots
+    def clean(self):
+        root_exists = Category.objects.filter(path__root=True).exists()
+        is_root = not self.parent
+        if is_root and root_exists:
+            raise ValidationError('Root already exists.')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -17,7 +22,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return '%s %s' % (self.name, self.path)
+        return '%s - %s' % (self.name, self.path)
 
 
 class Product(models.Model):
@@ -33,4 +38,4 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return '%s, %s' % (self.name, self.path)
+        return '%s - %s' % (self.name, self.path)

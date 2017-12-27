@@ -9,7 +9,7 @@ from products.models import Category, Product
 
 def get_categories_tree(ordered_categories: List[Category]):
     """
-        categories ordered by node count in path in descending order.
+    Categories ordered by node count in path in descending order.
     :param ordered_categories:
     :return:
     """
@@ -37,7 +37,7 @@ def update_with_products(node_lookup: dict, products: List[Product]):
     :return:
     """
     for product in products:
-        parent_pk = product.parent_category.pk
+        parent_pk = product.parent.pk
         if parent_pk in node_lookup:
             node = dict(id=product.pk, name=product.name, price=product.price)
             node_lookup[parent_pk]['children'].append(node)
@@ -50,8 +50,10 @@ def get_tree(ordered_categories: List[Category], products: List[Product]):
     :param products:
     :return:
     """
-    tree, lookup = get_categories_tree(ordered_categories)
-    update_with_products(lookup, products)
+    tree = None
+    if ordered_categories:
+        tree, lookup = get_categories_tree(ordered_categories)
+        update_with_products(lookup, products)
     return tree
 
 
@@ -59,7 +61,7 @@ class MenuTreeView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        categories = Category.objects.filter(active=True).order_by('path')
+        categories = Category.objects.filter(active=True).order_by('parent_path')
         products = Product.objects.filter(active=True)
         tree = get_tree(categories, products)
         return Response(data=tree)

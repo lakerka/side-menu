@@ -11,7 +11,7 @@ class Category(models.Model):
     active = models.BooleanField(default=True)
 
     def clean(self):
-        root_exists = Category.objects.filter(path__root=True).exists()
+        root_exists = Category.objects.filter(parent=None).exists()
         is_root = not self.parent
         if is_root and root_exists:
             raise ValidationError('Root already exists.')
@@ -39,7 +39,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def save(self, *args, **kwargs):
-        self.parent_path = self.parent.parent_path + '.' + str(self.parent.pk)
+        parent_path = str(self.parent.pk)
+        if self.parent.parent_path:
+            parent_path = self.parent.parent_path + '.' + str(self.parent.pk)
+        self.parent_path = parent_path
         super().save(*args, **kwargs)
 
     def __str__(self):

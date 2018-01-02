@@ -15,6 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.static import serve
+
 
 from products.views import MenuTreeView
 
@@ -22,3 +26,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('menu/tree', MenuTreeView.as_view()),
 ]
+
+# Works only for development. For production
+# static files should be server by appropriate server.
+static_url_patterns = [
+    path('', serve, kwargs=dict(path='index.html', document_root=settings.STATICFILES_DIR), name='home')
+] + staticfiles_urlpatterns(prefix='/')
+
+urlpatterns += static_url_patterns

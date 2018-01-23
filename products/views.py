@@ -61,7 +61,7 @@ class MenuTreeView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, format=None):
-        categories = Category.objects.filter(active=True).order_by('parent_path')
-        products = Product.objects.filter(active=True)
+        categories = Category.objects.filter(active=True).order_by('parent_path').select_related('parent')
+        products = Product.objects.filter(active=True).select_related('parent')
         tree = get_tree(categories, products)
         return Response(data=tree)
